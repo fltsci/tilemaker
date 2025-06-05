@@ -19,6 +19,8 @@ thread_local kaguya::State *g_luaState = nullptr;
 thread_local OsmLuaProcessing* osmLuaProcessing = nullptr;
 
 std::mutex vectorLayerMetadataMutex;
+std::unordered_map<std::string, std::string> OsmLuaProcessing::dataStore;
+std::mutex OsmLuaProcessing::dataStoreMutex;
 
 void handleOsmLuaProcessingUserSignal(int signum) {
 	osmLuaProcessing->handleUserSignal(signum);
@@ -182,6 +184,7 @@ bool rawIntersects(const std::string& layerName) { return osmLuaProcessing->Inte
 std::vector<std::string> rawFindCovering(const std::string& layerName) { return osmLuaProcessing->FindCovering(layerName); }
 bool rawCoveredBy(const std::string& layerName) { return osmLuaProcessing->CoveredBy(layerName); }
 bool rawIsClosed() { return osmLuaProcessing->IsClosed(); }
+bool rawIsMultiPolygon() { return osmLuaProcessing->IsMultiPolygon(); }
 double rawArea() { return osmLuaProcessing->Area(); }
 double rawLength() { return osmLuaProcessing->Length(); }
 kaguya::optional<std::vector<double>> rawCentroid(kaguya::VariadicArgType algorithm) { return osmLuaProcessing->Centroid(algorithm); }
@@ -259,6 +262,13 @@ kaguya::optional<std::string> OsmLuaProcessing::GeoJSON(bool area) {
 	geometry.Accept(writer);
 	std::string json(buffer.GetString(), buffer.GetSize());
 	return json;
+void rawSetData(const std::string &key, const std::string &value) { 
+	std::lock_guard<std::mutex> lock(osmLuaProcessing->dataStoreMutex);
+	osmLuaProcessing->dataStore[key] = value;
+}
+std::string rawGetData(const std::string &key) {
+	auto r = osmLuaProcessing->dataStore.find(key);
+	return r==osmLuaProcessing->dataStore.end() ? "" : r->second;
 }
 
 bool supportsRemappingShapefiles = false;
@@ -282,7 +292,8 @@ OsmLuaProcessing::OsmLuaProcessing(
 	const class ShpMemTiles &shpMemTiles, 
 	class OsmMemTiles &osmMemTiles,
 	AttributeStore &attributeStore,
-	bool materializeGeometries):
+	bool materializeGeometries,
+	bool isFirst) :
 	osmStore(osmStore),
 	shpMemTiles(shpMemTiles),
 	osmMemTiles(osmMemTiles),
@@ -313,6 +324,7 @@ OsmLuaProcessing::OsmLuaProcessing(
 	luaState["CoveredBy"] = &rawCoveredBy;
 	luaState["IsClosed"] = &rawIsClosed;
 	luaState["GeoJSON"] = &rawGeoJSON;
+	luaState["IsMultiPolygon"] = &rawIsMultiPolygon;
 	luaState["Area"] = &rawArea;
 	luaState["AreaIntersecting"] = &rawAreaIntersecting;
 	luaState["Length"] = &rawLength;
@@ -338,6 +350,8 @@ OsmLuaProcessing::OsmLuaProcessing(
 	luaState["NextRelation"] = &rawNextRelation;
 	luaState["RestartRelations"] = &rawRestartRelations;
 	luaState["FindInRelation"] = &rawFindInRelation;
+	luaState["SetData"] = &rawSetData;
+	luaState["GetData"] = &rawGetData;
 	supportsRemappingShapefiles = !!luaState["attribute_function"];
 	supportsReadingRelations    = !!luaState["relation_scan_function"];
 	supportsPostScanRelations   = !!luaState["relation_postscan_function"];
@@ -348,7 +362,7 @@ OsmLuaProcessing::OsmLuaProcessing(
 	// ---- Call init_function of Lua logic
 
 	if (!!luaState["init_function"]) {
-		luaState["init_function"](this->config.projectName);
+		luaState["init_function"](this->config.projectName, isFirst);
 	}
 }
 
@@ -540,6 +554,11 @@ std::vector<uint> OsmLuaProcessing::coveredQuery(const string &layerName, bool o
 bool OsmLuaProcessing::IsClosed() const {
 	if (!isWay) return false; // nonsense: it isn't a way
 	return isClosed;
+}
+
+// Return whether it's a multipolygon
+bool OsmLuaProcessing::IsMultiPolygon() const {
+	return isWay && isRelation;
 }
 
 void reverse_project(DegPoint& p) {
@@ -1242,4 +1261,3 @@ std::vector<OutputObject> OsmLuaProcessing::finalizeOutputs() {
 	}
 	return list;
 }
-
