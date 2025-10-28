@@ -142,6 +142,7 @@ kaguya::LuaTable getAllTags(kaguya::State& luaState, const boost::container::fla
 }
 
 std::string rawId() { return osmLuaProcessing->Id(); }
+std::string rawOsmType() { return osmLuaProcessing->OsmType(); }
 kaguya::LuaTable rawAllKeys() {
 	if (osmLuaProcessing->isPostScanRelation) {
 		return osmLuaProcessing->AllKeys(*g_luaState);
@@ -312,6 +313,7 @@ OsmLuaProcessing::OsmLuaProcessing(
 
 	osmLuaProcessing = this;
 	luaState["Id"] = &rawId;
+	luaState["OsmType"] = &rawOsmType;
 	luaState["AllKeys"] = &rawAllKeys;
 	luaState["AllTags"] = &rawAllTags;
 	luaState["Holds"] = &rawHolds;
@@ -336,8 +338,12 @@ OsmLuaProcessing::OsmLuaProcessing(
 			[](const std::string &key, const protozero::data_view val, const char minzoom) { osmLuaProcessing->Attribute(key, val, minzoom); }
 	);
 	luaState["AttributeNumeric"] = kaguya::overload(
-			[](const std::string &key, const float val) { osmLuaProcessing->AttributeNumeric(key, val, 0); },
-			[](const std::string &key, const float val, const char minzoom) { osmLuaProcessing->AttributeNumeric(key, val, minzoom); }
+			[](const std::string &key, const double val) { osmLuaProcessing->AttributeNumeric(key, val, 0); },
+			[](const std::string &key, const double val, const char minzoom) { osmLuaProcessing->AttributeNumeric(key, val, minzoom); }
+	);
+	luaState["AttributeInteger"] = kaguya::overload(
+			[](const std::string &key, const int val) { osmLuaProcessing->AttributeInteger(key, val, 0); },
+			[](const std::string &key, const int val, const char minzoom) { osmLuaProcessing->AttributeInteger(key, val, minzoom); }
 	);
 	luaState["AttributeBoolean"] = kaguya::overload(
 			[](const std::string &key, const bool val) { osmLuaProcessing->AttributeBoolean(key, val, 0); },
@@ -420,6 +426,11 @@ kaguya::LuaTable OsmLuaProcessing::remapAttributes(kaguya::LuaTable& in_table, c
 // Get the ID of the current object
 string OsmLuaProcessing::Id() const {
 	return to_string(originalOsmID);
+}
+
+// Get the Type of the current object
+string OsmLuaProcessing::OsmType() const {
+	return (isRelation ? "relation" : isWay ? "way" : "node");
 }
 
 // Gets a table of all the keys of the OSM tags
@@ -985,7 +996,7 @@ void OsmLuaProcessing::Attribute(const string &key, const protozero::data_view v
 	setVectorLayerMetadata(outputs.back().first.layer, key, 0);
 }
 
-void OsmLuaProcessing::AttributeNumeric(const string &key, const float val, const char minzoom) {
+void OsmLuaProcessing::AttributeNumeric(const string &key, const double val, const char minzoom) {
 	if (outputs.size()==0) { ProcessingError("Can't add Attribute if no Layer set"); return; }
 	removeAttributeIfNeeded(key);
 	attributeStore.addAttribute(outputs.back().second, key, val, minzoom);
@@ -997,6 +1008,13 @@ void OsmLuaProcessing::AttributeBoolean(const string &key, const bool val, const
 	removeAttributeIfNeeded(key);
 	attributeStore.addAttribute(outputs.back().second, key, val, minzoom);
 	setVectorLayerMetadata(outputs.back().first.layer, key, 2);
+}
+
+void OsmLuaProcessing::AttributeInteger(const string &key, const int val, const char minzoom) {
+	if (outputs.size()==0) { ProcessingError("Can't add Attribute if no Layer set"); return; }
+	removeAttributeIfNeeded(key);
+	attributeStore.addAttribute(outputs.back().second, key, val, minzoom);
+	setVectorLayerMetadata(outputs.back().first.layer, key, 3);
 }
 
 // Set minimum zoom
