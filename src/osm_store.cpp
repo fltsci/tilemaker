@@ -87,7 +87,7 @@ MultiPolygon OSMStore::wayListMultiPolygon(WayVec::const_iterator outerBegin, Wa
 		for (auto it = filledInners.begin(); it != filledInners.end(); ++it) {
 			if (onlyOneOuter || geom::within(*it, poly.outer())) { poly.inners().emplace_back(*it); }
 		}
-		mp.emplace_back(move(poly));
+		mp.emplace_back(std::move(poly));
 	}
 
 	// fix winding
@@ -107,7 +107,7 @@ MultiLinestring OSMStore::wayListMultiLinestring(WayVec::const_iterator outerBeg
 	for (auto ot = linestrings.begin(); ot != linestrings.end(); ot++) {
 		Linestring ls;
 		fillPoints(ls, ot->begin(), ot->end());
-		mls.emplace_back(move(ls));
+		mls.emplace_back(std::move(ls));
 	}
 
 	return mls;

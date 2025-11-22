@@ -115,7 +115,7 @@ bool SortedNodeStore::contains(size_t shard, NodeID id) const {
 	uint16_t scaledOffset = groupPtr->chunkOffsets[chunkOffset];
 	ChunkInfoBase* basePtr = (ChunkInfoBase*)(((char *)(groupPtr->chunkOffsets + popcnt(groupPtr->chunkMask, 32))) + (scaledOffset * ChunkAlignment));
 
-	size_t nodeOffset = 0;
+	[[maybe_unused]] size_t nodeOffset = 0;
 	nodeOffset = popcnt(basePtr->nodeMask, nodeMaskByte);
 	uint8_t maskByte = basePtr->nodeMask[nodeMaskByte];
 	maskByte = maskByte & ((1 << nodeMaskBit) - 1);

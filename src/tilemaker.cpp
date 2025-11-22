@@ -139,7 +139,7 @@ int main(const int argc, const char* argv[]) {
 		maxLat = bboxElementFromStr(bboxElements.at(3));
 
 	} else if (options.inputFiles.size()>0) {
-		for (const auto inputFile : options.inputFiles) {
+		for (const auto &inputFile : options.inputFiles) {
 			bool localHasClippingBox;
 			double localMinLon, localMaxLon, localMinLat, localMaxLat;
 			int ret = ReadPbfBoundingBox(inputFile, localMinLon, localMaxLon, localMinLat, localMaxLat, localHasClippingBox);
@@ -524,7 +524,7 @@ int main(const int argc, const char* argv[]) {
 			batchSize++;
 		}
 
-		boost::asio::post(pool, [=, &tileCoordinates, &pool, &sharedData, &sources, &attributeStore, &io_mutex, &tilesWritten, &lastTilesWritten]() {
+		boost::asio::post(pool, [=, &tileCoordinates, &sharedData, &sources, &attributeStore, &io_mutex, &tilesWritten, &lastTilesWritten]() {
 			std::vector<std::string> tileTimings;
 			std::size_t endIndex = std::min(tileCoordinates.size(), startIndex + batchSize);
 			for(std::size_t i = startIndex; i < endIndex; ++i) {

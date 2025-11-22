@@ -230,12 +230,12 @@ OsmLuaProcessing::OsmLuaProcessing(
 	AttributeStore &attributeStore,
 	bool materializeGeometries,
 	bool isFirst) :
+	currentTags(NULL),
 	osmStore(osmStore),
 	shpMemTiles(shpMemTiles),
 	osmMemTiles(osmMemTiles),
 	attributeStore(attributeStore),
 	config(configIn),
-	currentTags(NULL),
 	layers(layers),
 	materializeGeometries(materializeGeometries) {
 

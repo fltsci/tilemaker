@@ -114,7 +114,7 @@ bool SortedWayStore::contains(size_t shard, WayID id) const {
 	ChunkInfo* chunkPtr = (ChunkInfo*)((char*)groupPtr + groupPtr->chunkOffsets[chunkOffset]);
 
 	{
-		size_t wayOffset = 0;
+		[[maybe_unused]] size_t wayOffset = 0;
 		wayOffset = popcnt(chunkPtr->smallWayMask, wayMaskByte);
 		uint8_t maskByte = chunkPtr->smallWayMask[wayMaskByte];
 		maskByte = maskByte & ((1 << wayMaskBit) - 1);
@@ -123,7 +123,7 @@ bool SortedWayStore::contains(size_t shard, WayID id) const {
 			return true;
 	}
 
-	size_t wayOffset = 0;
+	[[maybe_unused]] size_t wayOffset = 0;
 	wayOffset += popcnt(chunkPtr->smallWayMask, 32);
 	wayOffset += popcnt(chunkPtr->bigWayMask, wayMaskByte);
 	uint8_t maskByte = chunkPtr->bigWayMask[wayMaskByte];

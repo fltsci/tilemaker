@@ -339,7 +339,7 @@ void ProcessObjects(
 				}
 				MultiLinestring reordered;
 				ReorderMultiLinestring(boost::get<MultiLinestring>(g), reordered);
-				g = move(reordered);
+				g = std::move(reordered);
 				oo = *jt;
 
 			} else if (oo.oo.geomType == POLYGON_ && combinePolygons) {

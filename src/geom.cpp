@@ -54,9 +54,9 @@ static inline void simplify_ring(GeometryType const &input, GeometryType &output
 
         if(boost::geometry::distance(line, input[max_comp_i]) < distance) {
 			std::size_t query_count = 0;
-            for(auto const &result: rtree | boost::geometry::index::adaptors::queried(boost::geometry::index::intersects(line)))
+            for([[maybe_unused]] auto const &result: rtree | boost::geometry::index::adaptors::queried(boost::geometry::index::intersects(line)))
 				++query_count;
-            for(auto const &result: outer_rtree | boost::geometry::index::adaptors::queried(boost::geometry::index::intersects(line)))
+            for([[maybe_unused]] auto const &result: outer_rtree | boost::geometry::index::adaptors::queried(boost::geometry::index::intersects(line)))
 				++query_count;
 
 			std::size_t expected_count = std::min<std::size_t>(4, nodes.size() - 1);
