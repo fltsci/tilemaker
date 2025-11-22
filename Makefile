@@ -74,7 +74,10 @@ prefix = /usr/local
 
 MANPREFIX := /usr/share/man
 TM_VERSION ?= $(shell git describe --tags --abbrev=0)
-CXXFLAGS ?= -O3 -Wall -Wno-unknown-pragmas -Wno-sign-compare -Wno-missing-template-arg-list-after-template-kw -std=c++17 -pthread -fPIE -DTM_VERSION=$(TM_VERSION) $(CONFIG)
+# Suppress warnings from third-party libraries:
+# -Wno-missing-template-arg-list-after-template-kw: Boost.Interprocess compatibility issue with newer Boost versions
+# -Wno-deprecated-declarations: RapidJSON uses deprecated std::iterator (deprecated in C++17)
+CXXFLAGS ?= -O3 -Wall -Wno-unknown-pragmas -Wno-sign-compare -Wno-missing-template-arg-list-after-template-kw -Wno-deprecated-declarations -std=c++17 -pthread -fPIE -DTM_VERSION=$(TM_VERSION) $(CONFIG)
 CFLAGS ?= -O3 -Wall -Wno-unknown-pragmas -Wno-sign-compare -std=c99 -fPIE -DTM_VERSION=$(TM_VERSION) $(CONFIG)
 LIB := -L$(PLATFORM_PATH)/lib $(LUA_LIBS) -lboost_program_options -lsqlite3 -lboost_filesystem -lboost_system -lshp -pthread
 INC := -I$(PLATFORM_PATH)/include -isystem ./include -I./src $(LUA_CFLAGS)
