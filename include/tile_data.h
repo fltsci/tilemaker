@@ -6,7 +6,6 @@
 #include <set>
 #include <vector>
 #include <memory>
-#include <boost/sort/sort.hpp>
 #include "output_object.h"
 #include "append_vector.h"
 #include "clip_cache.h"
@@ -106,7 +105,7 @@ template<typename OO> void finalizeObjects(
 		// better to assign chunks of `objects` to each thread.
 		//
 		// That's a future performance improvement, so deferring for now.
-		boost::sort::block_indirect_sort(
+		std::sort(
 			it->begin(),
 			it->end(), 
 			[indexZoom](const OO& a, const OO& b) {
@@ -131,8 +130,7 @@ template<typename OO> void finalizeObjects(
 				}
 
 				return false;
-			},
-			threadNum
+			}
 		);
 	}
 

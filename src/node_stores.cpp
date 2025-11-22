@@ -1,5 +1,4 @@
 #include <algorithm>
-#include <boost/sort/sort.hpp>
 #include "node_stores.h"
 
 void BinarySearchNodeStore::reopen()
@@ -77,10 +76,9 @@ void BinarySearchNodeStore::insert(const std::vector<element_t>& elements) {
 void BinarySearchNodeStore::finalize(size_t threadNum) {
 	std::lock_guard<std::mutex> lock(mutex);
 	for (auto i = 0; i < NODE_SHARDS; i++) {
-		boost::sort::block_indirect_sort(
+		std::sort(
 			mLatpLons[i]->begin(), mLatpLons[i]->end(), 
-			[](auto const &a, auto const &b) { return a.first < b.first; },
-			threadNum);
+			[](auto const &a, auto const &b) { return a.first < b.first; });
 	}
 }
 

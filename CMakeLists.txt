@@ -31,7 +31,7 @@ IF ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
     LINK_DIRECTORIES(${Boost_LIBRARY_DIRS})
 ENDIF ()
 
-find_package(Boost 1.66 REQUIRED COMPONENTS system filesystem program_options)
+find_package(Boost 1.89 REQUIRED COMPONENTS filesystem program_options)
 
 find_package(libshp REQUIRED)
 
@@ -125,7 +125,7 @@ target_link_libraries(tilemaker
 		shapelib::shp
 		SQLite::SQLite3
 		Rapidjson::rapidjson
-		Boost::system Boost::filesystem Boost::program_options)
+		Boost::filesystem Boost::program_options)
 
 include(CheckCxxAtomic)
 if(NOT HAVE_CXX11_ATOMIC)

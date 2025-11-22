@@ -79,7 +79,7 @@ TM_VERSION ?= $(shell git describe --tags --abbrev=0)
 # -Wno-deprecated-declarations: RapidJSON uses deprecated std::iterator (deprecated in C++17)
 CXXFLAGS ?= -O3 -Wall -Wno-unknown-pragmas -Wno-sign-compare -Wno-missing-template-arg-list-after-template-kw -Wno-deprecated-declarations -std=c++17 -pthread -fPIE -DTM_VERSION=$(TM_VERSION) $(CONFIG)
 CFLAGS ?= -O3 -Wall -Wno-unknown-pragmas -Wno-sign-compare -std=c99 -fPIE -DTM_VERSION=$(TM_VERSION) $(CONFIG)
-LIB := -L$(PLATFORM_PATH)/lib $(LUA_LIBS) -lboost_program_options -lsqlite3 -lboost_filesystem -lboost_system -lshp -pthread
+LIB := -L$(PLATFORM_PATH)/lib $(LUA_LIBS) -lboost_program_options -lsqlite3 -lboost_filesystem -lshp -pthread
 INC := -I$(PLATFORM_PATH)/include -isystem ./include -I./src $(LUA_CFLAGS)
 
 # Targets
@@ -262,6 +262,11 @@ install:
 	install -m 0755 tilemaker-server $(DESTDIR)$(prefix)/bin/
 	@install -m 0755 -d ${DESTDIR}${MANPREFIX}/man1/ || true
 	@install docs/man/tilemaker.1 ${DESTDIR}${MANPREFIX}/man1/ || true
+
+uninstall:
+	rm -f $(DESTDIR)$(prefix)/bin/tilemaker
+	rm -f $(DESTDIR)$(prefix)/bin/tilemaker-server
+	rm -f ${DESTDIR}${MANPREFIX}/man1/tilemaker.1
 
 clean:
 	rm -f tilemaker tilemaker-server src/*.o src/external/*.o src/external/libdeflate/lib/*.o src/external/libdeflate/lib/*/*.o include/*.o include/*.pb.h server/*.o test/*.o

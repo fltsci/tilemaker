@@ -1,5 +1,4 @@
 #include <iostream>
-#include <boost/sort/sort.hpp>
 #include "external/minunit.h"
 #include "append_vector.h"
 
@@ -31,21 +30,19 @@ MU_TEST(test_append_vector) {
 	mu_check(*(vec.end() - 9000) == 1000);
 	mu_check(*(vec.begin() - -1) == 1);
 
-	boost::sort::block_indirect_sort(
+	std::sort(
 		vec.begin(),
 		vec.end(),
-		[](auto const &a, auto const&b) { return b < a; },
-		1
+		[](auto const &a, auto const&b) { return b < a; }
 	);
 
 	mu_check(vec[0] == 9999);
 	mu_check(vec[9999] == 0);
 
-	boost::sort::block_indirect_sort(
+	std::sort(
 		vec.begin(),
 		vec.end(),
-		[](auto const &a, auto const&b) { return a < b; },
-		1
+		[](auto const &a, auto const&b) { return a < b; }
 	);
 
 	mu_check(vec[0] == 0);

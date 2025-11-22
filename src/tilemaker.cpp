@@ -22,7 +22,6 @@
 #include <boost/variant.hpp>
 #include <boost/algorithm/string.hpp>
 #include <boost/asio/thread_pool.hpp>
-#include <boost/sort/sort.hpp>
 
 #include "rapidjson/document.h"
 #include "rapidjson/writer.h"
@@ -455,7 +454,7 @@ int main(const int argc, const char* argv[]) {
 
 	// Cluster tiles: breadth-first for z0..z5, depth-first for z6
 	const size_t baseZoom = config.baseZoom;
-	boost::sort::block_indirect_sort(
+	std::sort(
 		tileCoordinates.begin(), tileCoordinates.end(), 
 		[baseZoom](auto const &a, auto const &b) {
 			const auto aZoom = a.first;
@@ -501,8 +500,7 @@ int main(const int argc, const char* argv[]) {
 			}
 
 			return false;
-		}, 
-		options.threadNum);
+		});
 
 	std::size_t batchSize = 0;
 	for(std::size_t startIndex = 0; startIndex < tileCoordinates.size(); startIndex += batchSize) {

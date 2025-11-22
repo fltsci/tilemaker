@@ -1,13 +1,12 @@
-#include <boost/sort/sort.hpp>
+
 
 #include "way_stores.h"
 
 void BinarySearchWayStore::finalize(unsigned int threadNum) { 
 	std::lock_guard<std::mutex> lock(mutex);
-	boost::sort::block_indirect_sort(
+	std::sort(
 		mLatpLonLists->begin(), mLatpLonLists->end(), 
-		[](auto const &a, auto const &b) { return a.first < b.first; }, 
-		threadNum);
+		[](auto const &a, auto const &b) { return a.first < b.first; });
 }
 
 void BinarySearchWayStore::reopen() {
