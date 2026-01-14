@@ -18,6 +18,14 @@ extern "C" {
 #include <lualib.h>
 }
 
+// Lua 5.4 compatibility: these GC constants were renamed
+#ifndef LUA_GCSETPAUSE
+#define LUA_GCSETPAUSE LUA_GCPPAUSE
+#endif
+#ifndef LUA_GCSETSTEPMUL
+#define LUA_GCSETSTEPMUL LUA_GCPSTEPMUL
+#endif
+
 #ifndef KAGUYA_USE_CPP11
 #if defined(__cpp_decltype) || __cplusplus >= 201103L || (defined(_MSC_VER) && _MSC_VER >= 1800)
 #define KAGUYA_USE_CPP11 1
