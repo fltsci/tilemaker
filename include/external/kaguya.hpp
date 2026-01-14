@@ -18,11 +18,12 @@ extern "C" {
 #include <lualib.h>
 }
 
-// Lua 5.4 compatibility: these GC constants were renamed
-#ifndef LUA_GCSETPAUSE
+// Lua 5.4 compatibility: Some builds removed LUA_GCSETPAUSE/LUA_GCSETSTEPMUL
+// Check if old constants exist, otherwise define them using the new names
+#if !defined(LUA_GCSETPAUSE) && defined(LUA_GCPPAUSE)
 #define LUA_GCSETPAUSE LUA_GCPPAUSE
 #endif
-#ifndef LUA_GCSETSTEPMUL
+#if !defined(LUA_GCSETSTEPMUL) && defined(LUA_GCPSTEPMUL)
 #define LUA_GCSETSTEPMUL LUA_GCPSTEPMUL
 #endif
 
@@ -12503,7 +12504,7 @@ namespace kaguya
 			
 			/// @brief sets arg as the new value for the pause of the collector. Returns the previous value for pause.
 			int steppause(int value) { return lua_gc(state_, LUA_GCSETPAUSE, value); }
-			
+
 			///  @brief sets arg as the new value for the step multiplier of the collector. Returns the previous value for step.
 			int setstepmul(int value) { return lua_gc(state_, LUA_GCSETSTEPMUL, value); }
 
